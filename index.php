@@ -206,6 +206,7 @@
 
 		function getContent() {
 			$serverIP = new IP(shell_exec("echo `ifconfig ".Configuration::getNIC()." 2>/dev/null|awk '/inet addr:/ {print $2}'|sed 's/addr://'`"));
+
 			$out = "<tr><td>".gethostname()."</td><td>".$serverIP->getPrettyIP()."<td>"
 				 .shell_exec("ifconfig ".Configuration::getNIC()." | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'")
 				 ."</td><td class='on'>".Language::getString()['CONNECTED']."</td><td></td></tr>";
@@ -279,11 +280,11 @@
 					 ."</td><td>".$hostIP->getPrettyIP()."</td><td>".$element["hardware ethernet"]."</td><td>".$starts->getPrettyDate()."</td><td>".$ends->getPrettyDate()."</td>";
 				if(array_key_exists($element["lease"], ArpScan::getTable())) {
 					$this->connectedDevices++;
-					$out .= (ArpScan::getTable()[$element["lease"]] == $element["hardware ethernet"] ? "<td class='on'>".Language::getString()['CONNECTED'] : "<td class='off'>".Language::getString()['DISCONNECTED']);
+					$out .= (ArpScan::getTable()[$element["lease"]] == $element["hardware ethernet"] ? "<td><p class='text-success'>".Language::getString()['CONNECTED'] : "<td><p class='text-muted'>".Language::getString()['DISCONNECTED']);
 				} else {
-					$out .= "<td class='off'>".Language::getString()['DISCONNECTED'];
+					$out .= "<td><p class='text-muted'>".Language::getString()['DISCONNECTED'];
 				}
-				$out .= "</td></tr>";//<td><a href='?remove=".$element["lease"]."'>".Language::getString()['REVOKE']."</a></td></tr>";
+				$out .= "</p></td></tr>";//<td><a href='?remove=".$element["lease"]."'>".Language::getString()['REVOKE']."</a></td></tr>";
 			}
 
 			return $out;
@@ -355,91 +356,103 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
 		<meta name="mobile-web-app-capable" content="yes">
 		<meta name="theme-color" content="#00325A">
-		<link rel="stylesheet" href="style.css">
-		<link href='https://fonts.googleapis.com/css?family=Roboto:400,500&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" href="bootstrap.min.css">
+		<link rel="stylesheet" href="styles.css">
 		<link rel="icon" type="image/png" sizes="192x192" href="images/icon-highres.png">
 	</head>
 	<body>
-		<header>
-			<div class="wrapper">
-				<h1><a href="/"><?php echo Configuration::getNetworkName(); ?></a></h1>
+		<nav class="navbar navbar-inverse bg-inverse mb-4">
+			<div class="container d-flex justify-content-between">
+				<a class="navbar-brand" href="/"><?php echo Configuration::getNetworkName(); ?></a>
 			</div>
-		</header>
-		<section class="status">
-			<div class="wrapper">
-				<?php
-					if(!$_SESSION['logged']):
-				?>
-				<form action="" method="post">
-					<?php if(Configuration::getPASSsetting()): ?>
-					<div class="group">
-						<input type="password" name="password" required>
-						<span class="highlight"></span>
-						<span class="bar"></span>
-						<label><?php echo Language::getString()['ENTER_PASS']; ?></label>
-					</div>
-					<?php endif; 
-					if(Configuration::getTOTPsetting()):?>
-					<div class="group">
-						<input type="text" name="totp" maxlength="6" required>
-						<span class="highlight"></span>
-						<span class="bar"></span>
-						<label><?php echo Language::getString()['ENTER_TOTP']; ?></label>
-					</div>
-					<?php endif; ?>
-					<input type="submit" value="<?php echo Language::getString()['ENTER_PASS']; ?>">
-				</form>
-			</div>
-		</section>
+		</nav>
+		<div class="container">
+			<?php
+				if(!$_SESSION['logged']):
+			?>
+			<form action="" method="post">
+				<?php if(Configuration::getPASSsetting()): ?>
+				<div class="group">
+					<input type="password" name="password" required>
+					<span class="highlight"></span>
+					<span class="bar"></span>
+					<label><? echo Language::getString()['ENTER_PASS']; ?></label>
+				</div>
+				<?php endif; 
+				if(Configuration::getTOTPsetting()):?>
+				<div class="group">
+					<input type="text" name="totp" maxlength="6" required>
+					<span class="highlight"></span>
+					<span class="bar"></span>
+					<label><? echo Language::getString()['ENTER_TOTP']; ?></label>
+				</div>
+				<?php endif; ?>
+				<input type="submit" value="<? echo Language::getString()['ENTER_PASS']; ?>">
+			</form>
+		</div>
 	</body>
 </html>
-				<?php exit; endif; ?>
-				<h2><?php
-					$hiddenDevices = $staticAddresses->getConnectedDevices() + $dynamicAddresses->getConnectedDevices();
+			<?php exit; endif; ?>
+			<section class="jumbotron text-center">
+				<div class="container">
+					<h1 class="jumbotron-heading"><?php
 					echo Language::getString()['OK_TEXT']
-						 .$wakeMessage."<br>"
-						 .Language::getString()['CUR_CONN']
+						 .$wakeMessage;
+					?></h1>
+					<p class="lead text-muted"><?php
+					$hiddenDevices = $staticAddresses->getConnectedDevices() + $dynamicAddresses->getConnectedDevices();
+					echo Language::getString()['CUR_CONN']
 						 ." <strong>".ArpScan::connectedDevices()
 						 ." "
 						 .Language::getString()['DEVICES']
 						 ."</strong>."
 						 .($hiddenDevices > ArpScan::connectedDevices() ? 
 							" ".Language::getString()['WHILE']." <strong>".$hiddenDevices."</strong> ".Language::getString()['HIDDEN'] : "");
-				?></h2>
+					?></p>	
+				</div>
+			</section>
+			<div class="row">
+				<div class="col">
+					<div class="card">
+						<div class="card-block">
+							<h4 class="card-title"><?php echo Language::getString()['STATIC']; ?></h4>
+							<table class="table table-responsive">
+								<?php 
+									echo "<tr><th>"
+										 .Language::getString()['DEVICE']
+										 ."</th><th>IP ".Language::getString()['ADDR']
+										 ."</th><th>MAC ".Language::getString()['ADDR']
+										 ."</th><th>".Language::getString()['STATE']
+										 ."</th><th>Wake on LAN</th></tr>";
+									echo $staticAddresses->getContent();
+								?>
+							</table>
+						</div>
+					</div>
+				</div>
 			</div>
-		</section>
-		<section class="paper">
-			<div class="wrapper">
-				<h3><?php echo Language::getString()['STATIC']; ?></h3>
-				<table>
-					<?php 
-						echo "<tr><th>"
-							 .Language::getString()['DEVICE']
-							 ."</th><th>IP ".Language::getString()['ADDR']
-							 ."</th><th>MAC ".Language::getString()['ADDR']
-							 ."</th><th>".Language::getString()['STATE']
-							 ."</th><th>Wake on LAN</th></tr>";
-						echo $staticAddresses->getContent();
-					?>
-				</table>
+			<div class="row mt-4">
+				<div class="col">
+					<div class="card">
+						<div class="card-block">
+							<h4 class="card-title"><?php echo Language::getString()['DYNAMIC']; ?></h4>
+							<table class="table table-responsive">
+								<?php
+									echo "<tr><th>".Language::getString()['DEVICE']
+										 ."</th><th>IP ".Language::getString()['ADDR']
+										 ."</th><th>MAC ".Language::getString()['ADDR']
+										 ."</th><th>".Language::getString()['START']
+										 ."</th><th>".Language::getString()['END']
+										 ."</th><th>".Language::getString()['STATE']
+										 ."</th></tr>";//<th>".Language::getString()['LEASE']."</th></tr>";"
+									echo $dynamicAddresses->getContent();
+								?>
+							</table>
+						</div>
+					</div>
+				</div>
 			</div>
-		</section>
-		<section class="paper">
-			<div class="wrapper">
-				<h3><?php echo Language::getString()['DYNAMIC']; ?></h3>
-				<table>
-					<?php
-						echo "<tr><th>".Language::getString()['DEVICE']
-							 ."</th><th>IP ".Language::getString()['ADDR']
-							 ."</th><th>MAC ".Language::getString()['ADDR']
-							 ."</th><th>".Language::getString()['START']
-							 ."</th><th>".Language::getString()['END']
-							 ."</th><th>".Language::getString()['STATE']
-							 ."</th></tr>";//<th>".Language::getString()['LEASE']."</th></tr>";"
-						echo $dynamicAddresses->getContent();
-					?>
-				</table>
-			</div>
-		</section>
+		</div>
+		
 	</body>
 </html>
