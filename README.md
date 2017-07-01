@@ -1,4 +1,4 @@
-dhcpd-webui
+Boostrap front-end to visualize leases for ISC DHCP Server
 ===========
 
 dhcpd-webui provides a sleek web-based interface for visualizing a database of 
@@ -30,4 +30,3 @@ that you need php5, wakeonlan and arp-scan to get dhcpd-webui working. Do not fo
 Pull requests and issues with suggestions are welcome!
 
 ## Screenshots
-![alt tag](https://jakubtopic.cz/sub/share/dhcpd-webui.png)
