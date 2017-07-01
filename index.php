@@ -1,4 +1,4 @@
-<?
+<?php
 	error_reporting(-1);
 	ini_set('display_errors', 'On');
 	include_once "classes/totp.class.php";
@@ -362,39 +362,39 @@
 	<body>
 		<header>
 			<div class="wrapper">
-				<h1><a href="/"><? echo Configuration::getNetworkName(); ?></a></h1>
+				<h1><a href="/"><?php echo Configuration::getNetworkName(); ?></a></h1>
 			</div>
 		</header>
 		<section class="status">
 			<div class="wrapper">
-				<?
+				<?php
 					if(!$_SESSION['logged']):
 				?>
 				<form action="" method="post">
-					<? if(Configuration::getPASSsetting()): ?>
+					<?php if(Configuration::getPASSsetting()): ?>
 					<div class="group">
 						<input type="password" name="password" required>
 						<span class="highlight"></span>
 						<span class="bar"></span>
-						<label><? echo Language::getString()['ENTER_PASS']; ?></label>
+						<label><?php echo Language::getString()['ENTER_PASS']; ?></label>
 					</div>
-					<? endif; 
+					<?php endif; 
 					if(Configuration::getTOTPsetting()):?>
 					<div class="group">
 						<input type="text" name="totp" maxlength="6" required>
 						<span class="highlight"></span>
 						<span class="bar"></span>
-						<label><? echo Language::getString()['ENTER_TOTP']; ?></label>
+						<label><?php echo Language::getString()['ENTER_TOTP']; ?></label>
 					</div>
-					<? endif; ?>
-					<input type="submit" value="<? echo Language::getString()['ENTER_PASS']; ?>">
+					<?php endif; ?>
+					<input type="submit" value="<?php echo Language::getString()['ENTER_PASS']; ?>">
 				</form>
 			</div>
 		</section>
 	</body>
 </html>
-				<? exit; endif; ?>
-				<h2><?
+				<?php exit; endif; ?>
+				<h2><?php
 					$hiddenDevices = $staticAddresses->getConnectedDevices() + $dynamicAddresses->getConnectedDevices();
 					echo Language::getString()['OK_TEXT']
 						 .$wakeMessage."<br>"
@@ -410,9 +410,9 @@
 		</section>
 		<section class="paper">
 			<div class="wrapper">
-				<h3><? echo Language::getString()['STATIC']; ?></h3>
+				<h3><?php echo Language::getString()['STATIC']; ?></h3>
 				<table>
-					<? 
+					<?php 
 						echo "<tr><th>"
 							 .Language::getString()['DEVICE']
 							 ."</th><th>IP ".Language::getString()['ADDR']
@@ -426,9 +426,9 @@
 		</section>
 		<section class="paper">
 			<div class="wrapper">
-				<h3><? echo Language::getString()['DYNAMIC']; ?></h3>
+				<h3><?php echo Language::getString()['DYNAMIC']; ?></h3>
 				<table>
-					<?
+					<?php
 						echo "<tr><th>".Language::getString()['DEVICE']
 							 ."</th><th>IP ".Language::getString()['ADDR']
 							 ."</th><th>MAC ".Language::getString()['ADDR']
